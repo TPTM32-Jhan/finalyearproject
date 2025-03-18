@@ -69,21 +69,18 @@ public class GridView extends JFrame implements SimulatorView{
 
         for(int row = 0; row < field.getDepth(); row++) {
             for(int col = 0; col < field.getWidth(); col++) {
-                Object agent = field.getObjectAt(row, col);
-                if(agent != null) {
-                    stats.incrementCount(agent.getClass());
-                    fieldView.drawMark(col, row, getColor(agent.getClass()));
+                Object obj = field.getObjectAt(row, col);
+                if(obj != null) {
+                    stats.incrementCount(obj.getClass());
+                    fieldView.drawMark(col, row, getColor(obj.getClass()));
                     // Display different color for different property states
-                    if(agent instanceof Property){
-                        Property property = (Property) agent;
+                    if(obj instanceof Property){
+                        Property property = (Property) obj;
                         if(property.isOccupied()){ // Property State isOccupied
                             fieldView.drawMark(col, row, property.getStateColor()); // Color Red
                         } else if(property.isForSale()){ // Property State isForsale 
                             fieldView.drawMark(col, row, property.getStateColor()); // Color Green
                         }
-                    }
-                    if(agent instanceof People){
-                        fieldView.drawMark(col, row, Color.WHITE);
                     }
                 }
                 else {

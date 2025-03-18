@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -9,7 +10,6 @@ public class Simulator{
     private static final int DEFAULT_DEPTH = 80;
     private static final double FACILITY_CREATION_PROBABILITY = 0.02;
     private static final double PROPERTY_CREATION_PROBABILITY = 0.1;
-    private static final double PEOPLE_CREATION_PROBABILITY = 0.15;
 
 
     // List of Entities in the field
@@ -51,6 +51,36 @@ public class Simulator{
         reset();
     }
 
+    public void runLongSimulation(){
+        simulate(5000);
+    }
+
+    public void simulate(int numSteps){
+        for(int step = 1; step <= numSteps && views.get(0).isViable(field); step++ ){
+            simulateOneStep();
+            delay(60);
+        }
+    }
+
+    public void simulateOneStep(){
+        step++;
+        for(Iterator<Agent> it = agents.iterator(); it.hasNext();){
+            Agent agent = it.next();
+            agent.act();
+        }
+        
+        updateViews();
+        
+    }
+
+    private void delay(int millisec){
+        try{
+            Thread.sleep(millisec);
+        } catch (InterruptedException ie){
+
+        }
+    }
+
     public void reset(){
         step = 0;
         entities.clear();
@@ -71,23 +101,15 @@ public class Simulator{
             for(int col = 0; col < field.getWidth(); col++) {
                 if(rand.nextDouble() <= PROPERTY_CREATION_PROBABILITY) {
                     Location location = new Location(row, col);
-                    Property property = new Property(field,location);
+                    Agent people = new People(field, location);
+                    Property property = new Property(field,location,people);
                     entities.add(property);
-                    // field.place(property, location);
                 }
                 if(rand.nextDouble() <= FACILITY_CREATION_PROBABILITY) {
                     Location location = new Location(row, col);
                     Entity facility = new Facility(field, location);
                     entities.add(facility);
-                    // field.place(facility, location);
                 }
-                if(rand.nextDouble() <= PEOPLE_CREATION_PROBABILITY){
-                    Location location = new Location(row, col);
-                    Agent people = new People(field,location);
-                    agents.add(people);
-                    // field.place(people, location);
-                }
-                
             }
                 // else leave the location empty.
         }

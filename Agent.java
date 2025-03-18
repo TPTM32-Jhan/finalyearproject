@@ -2,7 +2,8 @@
 public abstract class Agent {
     protected double budget;
     protected double propertyValue;
-
+    
+    private Property occupiedProperty;
     private Location location;
     private Field field;
 
@@ -59,17 +60,12 @@ public abstract class Agent {
 
     protected boolean canAffordProperty(Property property){
         return this.budget >= property.getPrice();
-        /*
-         * or if false then do something..
-         */
     }
 
-    protected void occupyProperty(Property property){
-        property.setOwner(this); // set the people object as the owner of the property
-        property.setState(new OccupiedState()); //change property state to occupied 
-        property.handleState();
-
+    protected Property getOccupiedProperty(){
+        return occupiedProperty;
     }
+    
 
     /*
      * Idea, create random agents either people, or investor or banks

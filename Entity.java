@@ -6,7 +6,6 @@ public abstract class Entity {
     public Entity(Field field, Location location){
         this.field = field;
         setLocation(location);
-        // this.location = location;
     }
 
     public void setLocation(Location newlocation){

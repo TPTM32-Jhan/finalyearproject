@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.util.List;
 import java.util.Random;
 
 public class Property extends Entity{
@@ -8,14 +9,19 @@ public class Property extends Entity{
 
     // Instance Fields(Individual Characteristics)
     private double price; // Property's value on the market
-    private Field field;
     private PropertyState state; //State of the property/house
     private Agent owner; //Owner of the property
 
-    public Property(Field field, Location location){
+    public Property(Field field, Location location, Agent owner){
         super(field,location);
-        this.state = getRandomState();
-        handleState();
+        this.owner = owner;
+        setState(setRandomState());
+        if(isOccupied()){
+            setOwner(owner); //Set owner in the occupied state
+        } else if(isForSale()){
+            setOwner(null); // no owner if property is for sale
+        }
+
     }
 
     // Method to handle the current state
@@ -38,6 +44,7 @@ public class Property extends Entity{
     // isOccupied state property
     public boolean isOccupied(){
         return state instanceof OccupiedState;
+
     }
     // isForSale State property 
     public boolean isForSale(){
@@ -47,43 +54,70 @@ public class Property extends Entity{
     public void setPrice(double price){
         this.price = price;
     }
+
     public double getPrice(){
         return price;
     }
 
-    private PropertyState getRandomState(){
+    // Needed
+    public Agent getOwner(){
+        return owner;
+    }
+
+    private PropertyState setRandomState(){
         Random rand = Randomizer.getRandom();
-        if(rand.nextBoolean()){
-            return new ForSaleState();
+        // Define probabilities for different states
+        double forSaleProbability = 0.7; //70% chance property 
+        double occupiedProbability = 0.3; // 30% chance property
+
+        double chance = rand.nextDouble(); //Generate random num between 0.0 and 1.0
+
+        // Depending on the chance, return the appropriate state
+        if(chance < forSaleProbability){
+            return new ForSaleState(); //Property is forsale 
         } else {
-            return new OccupiedState();
+            return new OccupiedState(owner); //property is occupied with an owner(need to handle owner logic)
         }
+
+        /* Improvements for external factors 
+         * private PropertyState getRandomState(double marketConditionFactor) {
+            Random rand = Randomizer.getRandom();
+
+            // Modify probabilities based on market conditions (e.g., higher inflation leads to more properties for sale)
+             double forSaleProbability = 0.7 * marketConditionFactor; // Adjust probability by market condition
+             double occupiedProbability = 1.0 - forSaleProbability;
+         */
     }
 
     public void updatePrice(double interestRate, double inflationRate){
         this.price = price * (1 + interestRate) * (1 + inflationRate); // Adjust the price according to inflation rate
     }
 
+    // Method to allow an agent to occupy the property (if in correct state)
     public void setOwner(Agent newOwner){
-        owner = newOwner;
+        if(state instanceof OccupiedState){
+            this.owner = newOwner; // set the owner for occupied property
+        } else if(state instanceof ForSaleState){
+            this.owner = null; // no owner if property is for sale 
+        }
     }
 
-    public Agent getOwner(){
-        return owner;
+    public void adjustPriceForFacilities(List<Facility> facilities) {
+        for(Facility facility : facilities){
+            double distance = getDistanceToFacility(facility);
+            if(distance <= 3){
+                this.price = price * 1.1;
+                break;
+            }
+        }
     }
 
-    /*
-     * Increase price if near a facility function.
-     * nearFacility()
-     */
+    private double getDistanceToFacility(Facility facility){
+        Location propertyLocation = this.getLocation();
+        Location facilityLocation = facility.getLocation();
 
-     public void adjustPriceForFacilities() {
-        // if (isNearFacility("school")) {
-        //     this.price *= 1.05; // Increase price by 5% for proximity to a school
-        // }
-        // if (isNearFacility("hospital")) {
-        //     this.price *= 1.02; // 2% increase for proximity to a hospital
-        // }
+        return Math.abs(propertyLocation.getRow() - facilityLocation.getRow()) 
+        + Math.abs(propertyLocation.getCol() - facilityLocation.getCol());
     }
 
 

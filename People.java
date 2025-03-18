@@ -1,13 +1,10 @@
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class People extends Agent{
 
-    private List<?> preferences; //Family list, or something else
     private int familySize; //need 
     private double income; //budget, need
-    // private List<FamilyMember> familyMembers;
     private List<Property> propertiesList;
 
     public People(Field field, Location location){
@@ -30,40 +27,18 @@ public class People extends Agent{
          * What this will do during for each step on the simulation
          */
         // Move towardss a property
-        Location newLocation = findProperty();
-        if(newLocation == null){
-            // No property found - try to move to a free location
-            newLocation = getField().freeAdjacentLocation(getLocation());
-        }
+        // Location newLocation = findProperty();
+        // if(newLocation == null){
+        //     // No property found - try to move to a free location
+        //     newLocation = getField().freeAdjacentLocation(getLocation());
+        // }
 
-        if(newLocation != null){
-            setLocation(newLocation);
-        }
+        // if(newLocation != null){
+        //     setLocation(newLocation);
+        // }
 
     }
 
-    private Location findProperty(){
-        /*
-         * specify coordinate/location and region of the house they want to go to.
-         * 
-         */
-        Field field = getField();
-        List<Location> adjacent = field.adjacentLocations(getLocation());
-        Iterator<Location> it = adjacent.iterator();
-        while(it.hasNext()){
-            Location where = it.next();
-            Object agent = field.getObjectAt(where);
-            if(agent instanceof Property){
-                Property property = (Property) agent;
-                if(property.isForSale() && canAffordProperty(property)){
-                    property.setOwner(this);
-                    property.setState(new OccupiedState());
-                    return where;
-                }
-            }
-        }
-        return null;
-    }
 
     // @Override
     // public boolean isPreferredProperty(Property property) {
